@@ -115,9 +115,9 @@ Licensed under MIT.
 
 Special thanks to:
 
-* 🎞️ [**FFmpeg**](https://ffmpeg.org/) – for enabling seamless media processing and merging
-* ⬇️ [**yt-dlp**](https://github.com/yt-dlp/yt-dlp) – for powering high-quality YouTube downloads
+
 
 ---
+
 
 

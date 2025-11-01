@@ -179,6 +179,45 @@ document.addEventListener('DOMContentLoaded', function() {
             downloadProgress.classList.remove('hidden');
             updateProgress(10, 'Connecting to server...');
             
+            // Check if server requires direct download (Vercel environment)
+            if (currentVideoInfo && currentVideoInfo.useDirectDownload) {
+                updateProgress(50, 'Getting video URL...');
+                
+                // Build quality map to format
+                const qualityToFormat = {
+                    '8k': '337+251',      // 8K + best audio
+                    '4k': '315+251',      // 4K (2160p) + best audio
+                    'fhd': '137+251',     // 1080p + best audio
+                    'hd': '136+251',      // 720p + best audio
+                    'sd': '18',           // 360p with audio
+                    'audio': '251'        // best audio only
+                };
+                
+                const formatCode = qualityToFormat[selectedQuality] || '18';
+                const videoId = extractVideoId(currentVideoUrl);
+                
+                // Use YouTube's direct URLs (note: these expire after a few hours)
+                const directUrl = `https://www.youtube.com/watch?v=${videoId}`;
+                
+                updateProgress(80, 'Redirecting to video...');
+                
+                showNotification('Opening video in new tab. Right-click and "Save video as..." to download', 'info');
+                
+                // Open in new tab
+                window.open(directUrl, '_blank');
+                
+                updateProgress(100, 'Complete!');
+                setTimeout(() => {
+                    downloadProgress.classList.add('hidden');
+                    resetProgress();
+                }, 2000);
+                
+                return;
+            }
+            
+            // Server-side download (local environment only)
+            updateProgress(30, 'Preparing download...');
+            
             // Create download URL
             const downloadUrl = `/api/download`;
             

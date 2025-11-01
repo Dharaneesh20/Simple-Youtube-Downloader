@@ -35,7 +35,22 @@ app.post('/api/video-info', async (req, res) => {
             return res.status(400).json({ error: 'Invalid YouTube URL' });
         }
 
-        // Get available formats using yt-dlp
+        // Check if running on Vercel - can't use yt-dlp binary
+        if (process.env.VERCEL) {
+            // Return basic info without format detection
+            return res.json({
+                videoId: videoId,
+                title: 'YouTube Video',
+                author: 'Unknown',
+                thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                availableQualities: ['8k', '4k', 'fhd', 'hd', 'sd'], // Show all options
+                maxResolution: '8K',
+                duration: 0,
+                useDirectDownload: true // Force client to use direct download URLs
+            });
+        }
+
+        // Get available formats using yt-dlp (local only)
         const ytdlpPath = path.join(__dirname, '..', 'yt-dlp.exe');
         
         const ytdlp = spawn(ytdlpPath, [
@@ -143,13 +158,21 @@ app.post('/api/video-info', async (req, res) => {
     }
 });
 
-// Download video endpoint - server-side download using yt-dlp
+// Download video endpoint - Returns error on Vercel, only works locally
 app.post('/api/download', async (req, res) => {
-    // Use /tmp for Vercel serverless environment, fallback to downloads for local
-    const tempDir = process.env.VERCEL ? '/tmp' : path.join(__dirname, '..', 'downloads');
-    let tempFile = null;
-
     try {
+        // Check if running on Vercel
+        if (process.env.VERCEL) {
+            return res.status(501).json({ 
+                error: 'Server-side downloads are not supported on Vercel. Please use direct download mode.',
+                useDirectDownload: true
+            });
+        }
+
+        // Use /tmp for Vercel serverless environment, fallback to downloads for local
+        const tempDir = path.join(__dirname, '..', 'downloads');
+        let tempFile = null;
+
         const { url, quality } = req.body;
         
         if (!url) {

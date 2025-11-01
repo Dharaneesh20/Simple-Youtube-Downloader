@@ -145,7 +145,8 @@ app.post('/api/video-info', async (req, res) => {
 
 // Download video endpoint - server-side download using yt-dlp
 app.post('/api/download', async (req, res) => {
-    const tempDir = path.join(__dirname, '..', 'downloads');
+    // Use /tmp for Vercel serverless environment, fallback to downloads for local
+    const tempDir = process.env.VERCEL ? '/tmp' : path.join(__dirname, '..', 'downloads');
     let tempFile = null;
 
     try {

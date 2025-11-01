@@ -1,0 +1,19 @@
+# Don't deploy these to Vercel
+node_modules/
+.git/
+.env.local
+*.log
+
+# Old files not needed for deployment
+server.js
+script.js
+yt-dlp.exe
+ffmpeg.exe
+*.bat
+downloads/
+log.txt
+templates/
+
+# Documentation (optional - remove if you want docs on Vercel)
+*.md
+!README.md
